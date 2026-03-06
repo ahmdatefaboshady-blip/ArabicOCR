@@ -338,11 +338,26 @@ footer{
 <nav>
   <div class="nav-logo">📄 <span>Arabic OCR</span></div>
   <div class="nav-links">
-    <a href="#features">المميزات</a>
-    <a href="#howto">طريقة الاستخدام</a>
-    <a href="#developer">المطور</a>
-    <a href="#donate">تبرع</a>
-    <a href="#download" class="nav-dl">⬇ تحميل مجاني</a>
+    <a href="#features"  data-ar="المميزات"       data-en="Features"  data-fr="Fonctionnalités" data-de="Funktionen" data-es="Características" data-tr="Özellikler" data-id="Fitur" data-ur="خصوصیات">المميزات</a>
+    <a href="#video"     data-ar="شرح الفيديو"    data-en="Tutorial"  data-fr="Tutoriel"        data-de="Tutorial"   data-es="Tutorial"       data-tr="Eğitim"     data-id="Tutorial" data-ur="ٹیوٹوریل">شرح الفيديو</a>
+    <a href="#howto"     data-ar="طريقة الاستخدام" data-en="How To"   data-fr="Comment"         data-de="Anleitung"  data-es="Cómo usar"      data-tr="Nasıl"      data-id="Cara Pakai" data-ur="استعمال">طريقة الاستخدام</a>
+    <a href="#developer" data-ar="المطور"          data-en="Developer" data-fr="Développeur"     data-de="Entwickler" data-es="Desarrollador"  data-tr="Geliştirici" data-id="Pengembang" data-ur="ڈویلپر">المطور</a>
+    <a href="#donate"    data-ar="تبرع"            data-en="Donate"   data-fr="Faire un don"    data-de="Spenden"    data-es="Donar"          data-tr="Bağış Yap"  data-id="Donasi" data-ur="عطیہ">تبرع</a>
+    <a href="#download"  class="nav-dl"
+       data-ar="⬇ تحميل مجاني" data-en="⬇ Free Download" data-fr="⬇ Télécharger" data-de="⬇ Herunterladen" data-es="⬇ Descargar" data-tr="⬇ İndir" data-id="⬇ Unduh" data-ur="⬇ ڈاؤن لوڈ">⬇ تحميل مجاني</a>
+  </div>
+  <!-- Language Switcher -->
+  <div style="display:flex;gap:4px;margin-right:8px">
+    <select id="langSwitcher" style="background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer;outline:none">
+      <option value="ar">🇸🇦 العربية</option>
+      <option value="en">🇬🇧 English</option>
+      <option value="fr">🇫🇷 Français</option>
+      <option value="de">🇩🇪 Deutsch</option>
+      <option value="es">🇪🇸 Español</option>
+      <option value="tr">🇹🇷 Türkçe</option>
+      <option value="id">🇮🇩 Indonesia</option>
+      <option value="ur">🇵🇰 اردو</option>
+    </select>
   </div>
 </nav>
 
@@ -484,26 +499,69 @@ footer{
   </div>
 </section>
 
+<!-- VIDEO -->
+<section id="video" style="text-align:center">
+  <div class="reveal">
+    <div class="section-label"
+         data-ar="شرح البرنامج" data-en="Tutorial Video" data-fr="Vidéo tutoriel" data-de="Tutorial-Video" data-es="Video tutorial" data-tr="Eğitim Videosu" data-id="Video Tutorial" data-ur="ٹیوٹوریل ویڈیو">شرح البرنامج</div>
+    <h2 class="section-title"
+        data-ar="شاهد كيف يعمل البرنامج" data-en="Watch How It Works" data-fr="Regardez comment ça marche" data-de="Sehen Sie, wie es funktioniert" data-es="Mira cómo funciona" data-tr="Nasıl Çalıştığını İzleyin" data-id="Lihat Cara Kerjanya" data-ur="دیکھیں یہ کیسے کام کرتا ہے">شاهد كيف يعمل البرنامج</h2>
+  </div>
+  <div class="reveal" style="max-width:780px;margin:32px auto 0;border-radius:16px;overflow:hidden;border:1px solid var(--border);box-shadow:0 0 40px rgba(0,208,132,0.08)">
+    <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden">
+      <iframe
+        src="https://www.youtube.com/embed/P8g8hfUowLE"
+        style="position:absolute;top:0;right:0;width:100%;height:100%;border:none"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        title="Arabic OCR Tutorial">
+      </iframe>
+    </div>
+  </div>
+</section>
+
 <!-- DONATE -->
 <section id="donate" class="donate-section">
   <div class="reveal">
-    <div class="section-label">ادعم المشروع</div>
-    <h2 class="section-title">البرنامج مجاني — والدعم اختياري 💚</h2>
-    <p style="color:var(--muted);max-width:520px;margin:12px auto 0">إذا أفادك البرنامج ووفّر عليك وقتاً وجهداً، يسعدني أي دعم يساعد في تطوير المزيد من الأدوات المفيدة.</p>
+    <div class="section-label" data-ar="ادعم المشروع" data-en="Support the Project" data-fr="Soutenir le projet" data-de="Projekt unterstützen" data-es="Apoyar el proyecto" data-tr="Projeyi destekle" data-id="Dukung proyek" data-ur="منصوبے کی حمایت کریں">ادعم المشروع</div>
+    <h2 class="section-title" data-ar="البرنامج مجاني — والدعم اختياري 💚" data-en="Free Software — Donations Optional 💚" data-fr="Logiciel gratuit — Dons facultatifs 💚" data-de="Kostenlose Software — Spenden freiwillig 💚" data-es="Software gratis — Donaciones opcionales 💚" data-tr="Ücretsiz Yazılım — Bağış İsteğe Bağlı 💚" data-id="Perangkat Lunak Gratis — Donasi Opsional 💚" data-ur="مفت سافٹ ویئر — عطیات اختیاری 💚">البرنامج مجاني — والدعم اختياري 💚</h2>
+    <p style="color:var(--muted);max-width:520px;margin:12px auto 0"
+       data-ar="إذا أفادك البرنامج ووفّر عليك وقتاً وجهداً، يسعدني أي دعم يساعد في تطوير المزيد من الأدوات المفيدة."
+       data-en="If this tool saved you time and effort, any support helps me keep building free tools for everyone."
+       data-fr="Si cet outil vous a fait gagner du temps, tout soutien m'aide à continuer."
+       data-de="Wenn dieses Tool Ihnen Zeit gespart hat, hilft jede Unterstützung."
+       data-es="Si esta herramienta te ahorró tiempo, cualquier apoyo me ayuda a seguir."
+       data-tr="Bu araç size zaman kazandırdıysa, her türlü destek yeni araçlar geliştirmeme yardımcı olur."
+       data-id="Jika alat ini menghemat waktu Anda, dukungan apapun membantu saya terus berkembang."
+       data-ur="اگر اس ٹول نے آپ کا وقت بچایا تو کوئی بھی تعاون مجھے مزید ٹولز بنانے میں مدد کرتا ہے۔">إذا أفادك البرنامج ووفّر عليك وقتاً وجهداً، يسعدني أي دعم يساعد في تطوير المزيد من الأدوات المفيدة.</p>
   </div>
   <div class="donate-cards">
-    <a href="https://buymeacoffee.com/ahmdatef" target="_blank" class="donate-card reveal">
-      <div class="donate-icon">☕</div>
-      <div class="donate-name">Buy Me a Coffee</div>
-      <div class="donate-desc">buymeacoffee.com/ahmdatef</div>
-    </a>
+
+    <!-- فودافون كاش -->
+    <div class="donate-card reveal" style="cursor:default">
+      <div class="donate-icon">📱</div>
+      <div class="donate-name">Vodafone Cash</div>
+      <div class="donate-desc" style="margin-top:8px;font-size:15px;color:var(--text);font-weight:600;letter-spacing:1px">+20 109 447 4794</div>
+      <div class="donate-desc" style="margin-top:4px" data-ar="تحويل مباشر — مصر" data-en="Direct Transfer — Egypt" data-fr="Transfert direct — Égypte" data-de="Direktüberweisung — Ägypten" data-es="Transferencia directa — Egipto" data-tr="Doğrudan Transfer — Mısır" data-id="Transfer Langsung — Mesir" data-ur="براہ راست ٹرانسفر — مصر">تحويل مباشر — مصر</div>
+    </div>
+
+    <!-- PayPal -->
     <a href="https://paypal.me/ahmdatef2" target="_blank" class="donate-card reveal">
       <div class="donate-icon">💙</div>
       <div class="donate-name">PayPal</div>
       <div class="donate-desc">paypal.me/ahmdatef2</div>
     </a>
+
   </div>
-  <p class="donate-note reveal">جزاك الله خيراً على كل دعم مهما كان صغيراً — يساعدني على الاستمرار في تطوير أدوات مجانية للمجتمع العربي 🌟</p>
+  <p class="donate-note reveal"
+     data-ar="جزاك الله خيراً على كل دعم مهما كان صغيراً — يساعدني على الاستمرار في تطوير أدوات مجانية للمجتمع العربي 🌟"
+     data-en="Thank you for any support, big or small — it helps me keep building free tools 🌟"
+     data-fr="Merci pour tout soutien — cela m'aide à continuer 🌟"
+     data-de="Danke für jede Unterstützung 🌟"
+     data-es="Gracias por cualquier apoyo 🌟"
+     data-tr="Her türlü destek için teşekkürler 🌟"
+     data-id="Terima kasih atas dukungan apapun 🌟"
+     data-ur="کسی بھی تعاون کا شکریہ 🌟">جزاك الله خيراً على كل دعم مهما كان صغيراً 🌟</p>
 </section>
 
 <!-- DOWNLOAD -->
@@ -560,17 +618,45 @@ footer{
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+
+  // ── Scroll Reveal ──
   var reveals = document.querySelectorAll(".reveal");
   function checkReveal() {
     reveals.forEach(function(el) {
       var rect = el.getBoundingClientRect();
-      if (rect.top < window.innerHeight - 50) {
-        el.classList.add("visible");
-      }
+      if (rect.top < window.innerHeight - 50) el.classList.add("visible");
     });
   }
   checkReveal();
   window.addEventListener("scroll", checkReveal, {passive: true});
+
+  // ── Language Switcher ──
+  var rtlLangs = ["ar", "ur"];
+
+  function switchLang(lang) {
+    // تبديل الاتجاه
+    var isRTL = rtlLangs.includes(lang);
+    document.documentElement.setAttribute("dir", isRTL ? "rtl" : "ltr");
+    document.documentElement.setAttribute("lang", lang);
+
+    // ترجمة كل العناصر التي تحمل data-{lang}
+    document.querySelectorAll("[data-" + lang + "]").forEach(function(el) {
+      el.textContent = el.getAttribute("data-" + lang);
+    });
+
+    // حفظ اللغة
+    localStorage.setItem("ocr_lang", lang);
+  }
+
+  // تحميل اللغة المحفوظة
+  var saved = localStorage.getItem("ocr_lang") || "ar";
+  document.getElementById("langSwitcher").value = saved;
+  if (saved !== "ar") switchLang(saved);
+
+  document.getElementById("langSwitcher").addEventListener("change", function() {
+    switchLang(this.value);
+  });
+
 });
 </script>
 </body>
