@@ -319,6 +319,11 @@ footer{
 .reveal{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
 
+/* fallback: إذا لم يعمل JavaScript تظهر العناصر عادية */
+@media (prefers-reduced-motion: reduce) {
+  .reveal{opacity:1;transform:none}
+}
+
 /* ── RESPONSIVE ── */
 @media(max-width:640px){
   .nav-links{display:none}
@@ -473,7 +478,7 @@ footer{
       <div class="dev-bio">صنعتُ هذا البرنامج لأساعد المعلمين والباحثين والمهنيين العرب على التعامل مع ملفات PDF بكفاءة. البرنامج مجاني لأن الفائدة العامة أهم من الربح. اللهم اجعله في ميزان الحسنات 🤲</div>
       <div class="dev-contacts">
         <a href="tel:+201094474794" class="dev-contact">📞 +20 109 447 4794</a>
-        <a href="mailto:ahmdatef&#64;gmail.com" class="dev-contact">📧 ahmdatef&#64;gmail.com</a>
+        <a href="/cdn-cgi/l/email-protection#77161f1a1316031211515441434c101a161e1b5914181a" class="dev-contact">📧 ahmdatef&#64;gmail.com</a>
       </div>
     </div>
   </div>
@@ -507,17 +512,41 @@ footer{
     <div class="version-badge">الإصدار 2.0 — Windows</div>
     <h2>حمّل البرنامج مجاناً</h2>
     <p>يعمل على Windows 10/11 — لا يحتاج تثبيت Python أو أي مكتبات</p>
-    <a href="https://github.com/ahmdatefaboshady-blip/ArabicOCR/releases/latest/download/OCR_Setup_v2.exe"
-       class="btn-primary" style="display:inline-flex;margin-bottom:20px">
-      ⬇ تحميل OCR_Setup_v2.exe
-    </a>
-    <br>
+
+    <!-- خيارا التحميل -->
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:24px">
+
+      <!-- GitHub -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px 32px;min-width:220px">
+        <div style="font-size:28px;margin-bottom:8px">🐙</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">GitHub</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:16px">مباشر من المصدر</div>
+        <a href="https://github.com/ahmdatefaboshady-blip/ArabicOCR/releases/latest/download/OCR_Setup_v2.exe"
+           class="btn-primary" style="display:inline-flex;font-size:14px;padding:10px 20px">
+          ⬇ تحميل
+        </a>
+      </div>
+
+      <!-- MediaFire -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px 32px;min-width:220px">
+        <div style="font-size:28px;margin-bottom:8px">☁️</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">MediaFire</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:16px">بديل سريع</div>
+        <a href="https://www.mediafire.com/file/u22j6w1fhqf8up7/ArabicOCR.exe/file"
+           target="_blank"
+           class="btn-primary" style="display:inline-flex;font-size:14px;padding:10px 20px;background:var(--accent2)">
+          ⬇ تحميل
+        </a>
+      </div>
+
+    </div>
+
     <a href="https://github.com/ahmdatefaboshady-blip/ArabicOCR" target="_blank"
        class="btn-secondary" style="display:inline-flex">
       📂 GitHub Repository
     </a>
-    <p style="margin-top:24px;font-size:13px;color:var(--muted)">
-      بعد التحميل: افتح الملف مباشرة — لا حاجة لتثبيت
+    <p style="margin-top:20px;font-size:13px;color:var(--muted)">
+      بعد التحميل: شغّل ملف الإعداد — يثبّت البرنامج تلقائياً على جهازك
     </p>
   </div>
 </section>
@@ -526,7 +555,23 @@ footer{
 <footer>
   <span>© 2025 Arabic OCR — أحمد عاطف</span>
   <span>صُنع بـ ❤️ لخدمة المجتمع العربي</span>
-  <a href="mailto:ahmdatef&#64;gmail.com" style="color:var(--muted);text-decoration:none">ahmdatef&#64;gmail.com</a>
+  <span style="color:var(--muted)">ahmdatef&#64;gmail.com</span>
 </footer>
 
-<script data-cfasync="false" s
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  var reveals = document.querySelectorAll(".reveal");
+  function checkReveal() {
+    reveals.forEach(function(el) {
+      var rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight - 50) {
+        el.classList.add("visible");
+      }
+    });
+  }
+  checkReveal();
+  window.addEventListener("scroll", checkReveal, {passive: true});
+});
+</script>
+</body>
+</html>
