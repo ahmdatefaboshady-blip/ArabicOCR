@@ -727,4 +727,14 @@ document.addEventListener("DOMContentLoaded", function() {
   // تحميل اللغة المحفوظة
   var saved = localStorage.getItem("ocr_lang") || "ar";
   document.getElementById("langSwitcher").value = saved;
-  if (saved !== "ar") switchLang(saved)
+  if (saved !== "ar") switchLang(saved);
+
+  // ── Language Switcher onChange ──
+  document.getElementById("langSwitcher").addEventListener("change", function() {
+    switchLang(this.value);
+  });
+
+}); // end DOMContentLoaded
+</script>
+</body>
+</html>
