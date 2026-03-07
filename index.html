@@ -4,7 +4,53 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Arabic OCR — استخراج النصوص العربية بالذكاء الاصطناعي</title>
-<meta name="description" content="برنامج مجاني لاستخراج النصوص العربية من ملفات PDF باستخدام Mistral AI">
+<meta name="description" content="برنامج مجاني لاستخراج النصوص العربية من ملفات PDF باستخدام الذكاء الاصطناعي Mistral AI. يدعم الجداول والتنسيق ومعالجة آلاف الصفحات. يعمل على Windows بدون خبرة تقنية.">
+<meta name="keywords" content="استخراج نصوص عربية, PDF عربي, OCR عربي, تحويل PDF إلى نص, برنامج OCR مجاني, Mistral AI, ذكاء اصطناعي عربي, استخراج نص من صورة">
+<meta name="author" content="أحمد عاطف">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ahmdatefaboshady-blip.github.io/ArabicOCR/">
+
+<!-- Open Graph / Facebook / WhatsApp -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ahmdatefaboshady-blip.github.io/ArabicOCR/">
+<meta property="og:title" content="Arabic OCR — استخراج النصوص العربية من PDF بالذكاء الاصطناعي">
+<meta property="og:description" content="برنامج مجاني يحوّل ملفات PDF العربية إلى نصوص قابلة للتحرير في ثوانٍ. مدعوم بـ Mistral AI.">
+<meta property="og:image" content="https://ahmdatefaboshady-blip.github.io/ArabicOCR/photo.png">
+<meta property="og:locale" content="ar_AR">
+<meta property="og:site_name" content="Arabic OCR">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Arabic OCR — استخراج النصوص العربية من PDF">
+<meta name="twitter:description" content="برنامج مجاني يحوّل ملفات PDF العربية إلى نصوص قابلة للتحرير بالذكاء الاصطناعي.">
+<meta name="twitter:image" content="https://ahmdatefaboshady-blip.github.io/ArabicOCR/photo.png">
+
+<!-- Structured Data / Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Arabic OCR",
+  "description": "برنامج مجاني لاستخراج النصوص العربية من ملفات PDF باستخدام الذكاء الاصطناعي",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Windows 10, Windows 11",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "أحمد عاطف",
+    "email": "ahmdatef@gmail.com"
+  },
+  "url": "https://ahmdatefaboshady-blip.github.io/ArabicOCR/",
+  "downloadUrl": "https://github.com/ahmdatefaboshady-blip/ArabicOCR/releases/latest/download/ArabicOCR_Setup_v2.exe",
+  "softwareVersion": "2.0",
+  "inLanguage": "ar",
+  "keywords": "OCR, PDF, عربي, استخراج نصوص, ذكاء اصطناعي"
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -521,7 +567,7 @@ footer{
                style="height:52px;border-radius:12px;display:block;transition:opacity .2s"
                onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
         </a>
-        <a href="mailto:ahmdatef@gmail.com" class="dev-contact">📧 ahmdatef&#64;gmail.com</a>
+        <a href="/cdn-cgi/l/email-protection#eb8a83868f8a9f8e8dab8c868a8287c5888486" class="dev-contact">📧 ahmdatef&#64;gmail.com</a>
       </div>
     </div>
   </div>
@@ -651,7 +697,7 @@ footer{
   <span style="color:var(--muted)">ahmdatef&#64;gmail.com</span>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 document.addEventListener("DOMContentLoaded", function() {
 
   // ── Scroll Reveal ──
@@ -686,13 +732,4 @@ document.addEventListener("DOMContentLoaded", function() {
   // تحميل اللغة المحفوظة
   var saved = localStorage.getItem("ocr_lang") || "ar";
   document.getElementById("langSwitcher").value = saved;
-  if (saved !== "ar") switchLang(saved);
-
-  document.getElementById("langSwitcher").addEventListener("change", function() {
-    switchLang(this.value);
-  });
-
-});
-</script>
-</body>
-</html>
+  if (saved !== "ar") switchLang(saved)
