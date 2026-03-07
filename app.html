@@ -306,11 +306,11 @@ body::after{
     </div>
 
     <!-- Drop Zone -->
-    <input type="file" id="fileInput" accept=".pdf" multiple style="display:none">
-    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+    <div class="drop-zone" id="dropZone">
       <div class="drop-icon">📂</div>
       <div class="drop-text"><strong data-t="drop_strong">اسحب PDF هنا</strong><br><span data-t="drop_or">أو انقر للاختيار</span></div>
     </div>
+    <input type="file" id="fileInput" accept=".pdf" multiple style="display:none">
 
     <!-- File List -->
     <div class="sidebar-section" data-t="files_section">الملفات</div>
@@ -531,21 +531,25 @@ document.getElementById("toggleKey").addEventListener("click", ()=>{
 const dropZone = document.getElementById("dropZone");
 const fileInput = document.getElementById("fileInput");
 
-dropZone.addEventListener("dragover", e=>{ e.preventDefault(); dropZone.classList.add("drag"); });
-dropZone.addEventListener("dragleave", e=>{
-  if(!dropZone.contains(e.relatedTarget)) dropZone.classList.remove("drag");
-});
-dropZone.addEventListener("drop", e=>{
-  e.preventDefault();
-  e.stopPropagation();
+// ── النقر على dropZone يفتح fileInput ──
+dropZone.addEventListener("click", () => fileInput.click());
+
+// ── السحب والإفلات ──
+dropZone.addEventListener("dragover",  e => { e.preventDefault(); e.stopPropagation(); dropZone.classList.add("drag"); });
+dropZone.addEventListener("dragleave", e => { e.stopPropagation(); if(!dropZone.contains(e.relatedTarget)) dropZone.classList.remove("drag"); });
+dropZone.addEventListener("drop",      e => {
+  e.preventDefault(); e.stopPropagation();
   dropZone.classList.remove("drag");
-  const dropped = [...(e.dataTransfer.files||[])].filter(f=>f.type==="application/pdf"||f.name.endsWith(".pdf"));
-  if(dropped.length) addFiles(dropped);
-  else showToast("يرجى إرفاق ملفات PDF فقط", "err");
+  const dropped = [...(e.dataTransfer.files||[])].filter(f => f.name.toLowerCase().endsWith(".pdf"));
+  dropped.length ? addFiles(dropped) : showToast("يرجى إرفاق ملفات PDF فقط", "err");
 });
-fileInput.addEventListener("change", ()=>{
-  addFiles([...fileInput.files]);
-  fileInput.value = "";
+
+// ── اختيار الملف من مربع الحوار ──
+fileInput.addEventListener("change", function() {
+  if(this.files && this.files.length > 0) {
+    addFiles([...this.files]);
+  }
+  this.value = "";
 });
 
 function addFiles(newFiles){
@@ -1066,8 +1070,8 @@ async function downloadDocx(styled){
   showToast("✅ تم إنشاء ملف DOCX!", "ok");
 }
 // منع المتصفح من فتح الملف عند الإفلات خارج المنطقة
-document.addEventListener("dragover",  e=>e.preventDefault());
-document.addEventListener("drop",      e=>e.preventDefault());
+document.addEventListener("dragover", e=>e.preventDefault());
+document.addEventListener("drop",     e=>{ if(e.target !== dropZone && !dropZone.contains(e.target)) e.preventDefault(); });
 
 // ══════════════════════════════════════════
 //   INIT
