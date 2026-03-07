@@ -117,7 +117,7 @@ body::after{
   background:var(--bg);
 }
 .drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:rgba(0,208,132,.04)}
-.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-zone input{display:none}
 .drop-icon{font-size:28px;margin-bottom:8px}
 .drop-text{font-size:12px;color:var(--muted);line-height:1.6}
 .drop-text strong{color:var(--accent)}
@@ -305,8 +305,8 @@ body::after{
     </div>
 
     <!-- Drop Zone -->
-    <div class="drop-zone" id="dropZone">
-      <input type="file" id="fileInput" accept=".pdf" multiple>
+    <input type="file" id="fileInput" accept=".pdf" multiple style="display:none">
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
       <div class="drop-icon">📂</div>
       <div class="drop-text"><strong data-t="drop_strong">اسحب PDF هنا</strong><br><span data-t="drop_or">أو انقر للاختيار</span></div>
     </div>
@@ -371,8 +371,82 @@ body::after{
       <button class="action-btn" id="copyBtn" onclick="copyResult()">📋 <span data-t="copy">نسخ</span></button>
       <button class="action-btn green" id="dlMd" onclick="downloadResult('md')">💾 <span data-t="dl_md">تحميل .md</span></button>
       <button class="action-btn green" id="dlTxt" onclick="downloadResult('txt')">📄 <span data-t="dl_txt">تحميل .txt</span></button>
+      <button class="action-btn" id="dlDocx" onclick="showDocxDialog()" style="border-color:#1a3a5c;color:#388bfd">📝 <span data-t="dl_docx">تحميل .docx</span></button>
+      <button class="action-btn" onclick="showCorrectDialog()" style="border-color:#4c1d95;color:#a78bfa">🧠 <span data-t="smart_correct">تصحيح ذكي</span></button>
     </div>
 
+  </div>
+</div>
+
+
+
+<!-- Smart Correct Dialog -->
+<div id="correctDialog" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:#0d1117;border:1px solid #21262d;border-radius:16px;padding:0;min-width:360px;max-width:420px;overflow:hidden">
+    <div style="background:#161b22;padding:16px 20px;border-bottom:1px solid #21262d">
+      <div style="font-size:15px;font-weight:700;color:#e6edf3" id="correctDialogTitle">🧠 تصحيح ذكي</div>
+    </div>
+    <div style="padding:20px">
+
+      <!-- نطاق التصحيح -->
+      <div style="font-size:11px;font-weight:700;color:#7d8590;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px" id="correctScopeLabel">النطاق</div>
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <label style="flex:1;background:#161b22;border:1px solid #21262d;border-radius:8px;padding:10px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;color:#e6edf3;transition:border-color .2s" id="scopeCurrentLabel">
+          <input type="radio" name="correctScope" value="current" checked style="accent-color:#7c3aed"> <span id="scopeCurrentText">الملف الحالي</span>
+        </label>
+        <label style="flex:1;background:#161b22;border:1px solid #21262d;border-radius:8px;padding:10px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;color:#e6edf3;transition:border-color .2s" id="scopeAllLabel">
+          <input type="radio" name="correctScope" value="all" style="accent-color:#7c3aed"> <span id="scopeAllText">كل الملفات</span>
+        </label>
+      </div>
+
+      <!-- اختيار النموذج -->
+      <div style="font-size:11px;font-weight:700;color:#7d8590;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px" id="correctApiLabel">النموذج</div>
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <label style="flex:1;background:#161b22;border:1px solid #21262d;border-radius:8px;padding:10px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;color:#e6edf3" id="apiMistralLabel">
+          <input type="radio" name="correctApi" value="mistral" checked style="accent-color:#7c3aed"> <span id="apiMistralText">Mistral</span>
+        </label>
+        <label style="flex:1;background:#161b22;border:1px solid #21262d;border-radius:8px;padding:10px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;color:#e6edf3" id="apiClaudeLabel">
+          <input type="radio" name="correctApi" value="claude" style="accent-color:#7c3aed"> <span id="apiClaudeText">Claude</span>
+        </label>
+      </div>
+
+      <!-- مفتاح Claude -->
+      <div style="margin-bottom:16px">
+        <div style="font-size:11px;color:#7d8590;margin-bottom:6px" id="claudeKeyLabel">مفتاح Claude API</div>
+        <input type="password" id="claudeKeyInput" placeholder="sk-ant-..."
+          style="width:100%;background:#07090f;border:1px solid #21262d;border-radius:7px;padding:8px 12px;color:#e6edf3;font-family:monospace;font-size:11px;outline:none;box-sizing:border-box">
+      </div>
+
+      <!-- شريط التقدم -->
+      <div id="correctProgWrap" style="display:none;margin-bottom:16px">
+        <div style="font-size:11px;color:#7d8590;margin-bottom:6px" id="correctProgLabel"></div>
+        <div style="background:#21262d;border-radius:4px;height:4px;overflow:hidden">
+          <div id="correctProgFill" style="background:#7c3aed;height:100%;width:0%;transition:width .4s"></div>
+        </div>
+      </div>
+
+      <!-- أزرار -->
+      <div style="display:flex;gap:10px">
+        <button onclick="runSmartCorrect()" id="correctRunBtn"
+          style="flex:1;background:#7c3aed;border:none;border-radius:9px;padding:12px;color:#fff;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;transition:all .2s"
+          onmouseover="this.style.background='#6d28d9'" onmouseout="this.style.background='#7c3aed'"
+          id="correctRunBtnEl">✨ تصحيح الآن</button>
+        <button onclick="document.getElementById('correctDialog').style.display='none'"
+          style="background:#161b22;border:1px solid #21262d;border-radius:9px;padding:12px 16px;color:#7d8590;cursor:pointer;font-family:inherit;font-size:13px">✕</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DOCX Dialog -->
+<div id="docxDialog" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999;align-items:center;justify-content:center">
+  <div style="background:#0f1520;border:1px solid #21262d;border-radius:14px;padding:32px;min-width:300px;text-align:center">
+    <div style="font-size:15px;font-weight:700;margin-bottom:20px;color:#e6edf3" id="docxDialogTitle">اختر نوع تصدير DOCX</div>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button onclick="downloadDocx(false)" style="flex:1;background:#1c2333;border:1px solid #21262d;border-radius:9px;padding:14px;color:#e6edf3;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s" onmouseover="this.style.borderColor='#388bfd'" onmouseout="this.style.borderColor='#21262d'" id="docxSimpleBtn">📄 نص بسيط</button>
+      <button onclick="downloadDocx(true)"  style="flex:1;background:#1a3a5c;border:1px solid #1a3a5c;border-radius:9px;padding:14px;color:#e6edf3;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s" onmouseover="this.style.background='#2ea043'" onmouseout="this.style.background='#1a3a5c'" id="docxStyledBtn">✨ منسق بالكامل</button>
+    </div>
+    <button onclick="document.getElementById('docxDialog').style.display='none'" style="margin-top:16px;background:none;border:none;color:#7d8590;cursor:pointer;font-family:inherit;font-size:13px">إلغاء</button>
   </div>
 </div>
 
@@ -384,14 +458,14 @@ body::after{
 //   TRANSLATIONS
 // ══════════════════════════════════════════
 const T = {
-  ar:{ back:"الصفحة الرئيسية", api_key:"مفتاح Mistral API", get_key:"احصل عليه مجاناً ↗", drop_strong:"اسحب PDF هنا", drop_or:"أو انقر للاختيار", files_section:"الملفات", no_files:"لا توجد ملفات بعد", opt_images:"استخراج الصور", opt_autoscroll:"تمرير تلقائي", run_ocr:"تشغيل OCR", waiting:"في الانتظار...", placeholder_text:"أضف ملفات PDF من الشريط الجانبي ثم اضغط تشغيل OCR", copy:"نسخ", dl_md:"تحميل .md", dl_txt:"تحميل .txt", processing:"يعالج", page:"صفحة", done:"✅ اكتمل", error:"❌ خطأ", copied:"✅ تم النسخ!", no_results:"لا توجد نتائج بعد", api_saved:"✅ تم حفظ المفتاح", progress:"التقدم", words:"كلمة" },
-  en:{ back:"Home Page", api_key:"Mistral API Key", get_key:"Get it free ↗", drop_strong:"Drag PDF here", drop_or:"or click to select", files_section:"Files", no_files:"No files yet", opt_images:"Extract Images", opt_autoscroll:"Auto Scroll", run_ocr:"Run OCR", waiting:"Waiting...", placeholder_text:"Add PDF files from the sidebar then click Run OCR", copy:"Copy", dl_md:"Download .md", dl_txt:"Download .txt", processing:"Processing", page:"Page", done:"✅ Done", error:"❌ Error", copied:"✅ Copied!", no_results:"No results yet", api_saved:"✅ Key saved", progress:"Progress", words:"words" },
-  fr:{ back:"Accueil", api_key:"Clé API Mistral", get_key:"Obtenir gratuitement ↗", drop_strong:"Glisser PDF ici", drop_or:"ou cliquer pour sélectionner", files_section:"Fichiers", no_files:"Aucun fichier", opt_images:"Extraire images", opt_autoscroll:"Défilement auto", run_ocr:"Lancer OCR", waiting:"En attente...", placeholder_text:"Ajoutez des PDF puis cliquez Lancer OCR", copy:"Copier", dl_md:"Télécharger .md", dl_txt:"Télécharger .txt", processing:"Traitement", page:"Page", done:"✅ Terminé", error:"❌ Erreur", copied:"✅ Copié!", no_results:"Pas encore de résultats", api_saved:"✅ Clé sauvegardée", progress:"Progression", words:"mots" },
-  de:{ back:"Startseite", api_key:"Mistral API-Schlüssel", get_key:"Kostenlos erhalten ↗", drop_strong:"PDF hierher ziehen", drop_or:"oder klicken", files_section:"Dateien", no_files:"Keine Dateien", opt_images:"Bilder extrahieren", opt_autoscroll:"Auto-Scroll", run_ocr:"OCR starten", waiting:"Warten...", placeholder_text:"PDF-Dateien hinzufügen und OCR starten", copy:"Kopieren", dl_md:".md herunterladen", dl_txt:".txt herunterladen", processing:"Verarbeitung", page:"Seite", done:"✅ Fertig", error:"❌ Fehler", copied:"✅ Kopiert!", no_results:"Noch keine Ergebnisse", api_saved:"✅ Schlüssel gespeichert", progress:"Fortschritt", words:"Wörter" },
-  es:{ back:"Inicio", api_key:"Clave API Mistral", get_key:"Obtener gratis ↗", drop_strong:"Arrastra PDF aquí", drop_or:"o haz clic", files_section:"Archivos", no_files:"Sin archivos", opt_images:"Extraer imágenes", opt_autoscroll:"Desplazamiento auto", run_ocr:"Ejecutar OCR", waiting:"Esperando...", placeholder_text:"Añade PDFs y ejecuta OCR", copy:"Copiar", dl_md:"Descargar .md", dl_txt:"Descargar .txt", processing:"Procesando", page:"Página", done:"✅ Listo", error:"❌ Error", copied:"✅ Copiado!", no_results:"Sin resultados", api_saved:"✅ Clave guardada", progress:"Progreso", words:"palabras" },
-  tr:{ back:"Ana Sayfa", api_key:"Mistral API Anahtarı", get_key:"Ücretsiz al ↗", drop_strong:"PDF'yi buraya sürükle", drop_or:"veya tıkla", files_section:"Dosyalar", no_files:"Henüz dosya yok", opt_images:"Görüntüleri çıkar", opt_autoscroll:"Otomatik kaydır", run_ocr:"OCR başlat", waiting:"Bekleniyor...", placeholder_text:"PDF ekle ve OCR başlat", copy:"Kopyala", dl_md:".md indir", dl_txt:".txt indir", processing:"İşleniyor", page:"Sayfa", done:"✅ Tamam", error:"❌ Hata", copied:"✅ Kopyalandı!", no_results:"Henüz sonuç yok", api_saved:"✅ Anahtar kaydedildi", progress:"İlerleme", words:"kelime" },
-  id:{ back:"Beranda", api_key:"Kunci API Mistral", get_key:"Dapatkan gratis ↗", drop_strong:"Seret PDF ke sini", drop_or:"atau klik", files_section:"File", no_files:"Belum ada file", opt_images:"Ekstrak gambar", opt_autoscroll:"Gulir otomatis", run_ocr:"Jalankan OCR", waiting:"Menunggu...", placeholder_text:"Tambahkan PDF lalu jalankan OCR", copy:"Salin", dl_md:"Unduh .md", dl_txt:"Unduh .txt", processing:"Memproses", page:"Halaman", done:"✅ Selesai", error:"❌ Error", copied:"✅ Disalin!", no_results:"Belum ada hasil", api_saved:"✅ Kunci disimpan", progress:"Kemajuan", words:"kata" },
-  ur:{ back:"ہوم پیج", api_key:"Mistral API کلید", get_key:"مفت حاصل کریں ↗", drop_strong:"PDF یہاں کھینچیں", drop_or:"یا کلک کریں", files_section:"فائلیں", no_files:"ابھی کوئی فائل نہیں", opt_images:"تصاویر نکالیں", opt_autoscroll:"خودکار اسکرول", run_ocr:"OCR چلائیں", waiting:"انتظار...", placeholder_text:"PDF شامل کریں پھر OCR چلائیں", copy:"کاپی", dl_md:".md ڈاؤن لوڈ", dl_txt:".txt ڈاؤن لوڈ", processing:"پروسیسنگ", page:"صفحہ", done:"✅ مکمل", error:"❌ خطا", copied:"✅ کاپی ہو گیا!", no_results:"ابھی کوئی نتیجہ نہیں", api_saved:"✅ کلید محفوظ", progress:"پیشرفت", words:"الفاظ" },
+  ar:{ back:"الصفحة الرئيسية", api_key:"مفتاح Mistral API", get_key:"احصل عليه مجاناً ↗", drop_strong:"اسحب PDF هنا", drop_or:"أو انقر للاختيار", files_section:"الملفات", no_files:"لا توجد ملفات بعد", opt_images:"استخراج الصور", opt_autoscroll:"تمرير تلقائي", run_ocr:"تشغيل OCR", waiting:"في الانتظار...", placeholder_text:"أضف ملفات PDF من الشريط الجانبي ثم اضغط تشغيل OCR", copy:"نسخ", dl_md:"تحميل .md", dl_txt:"تحميل .txt", processing:"يعالج", page:"صفحة", done:"✅ اكتمل", error:"❌ خطأ", copied:"✅ تم النسخ!", no_results:"لا توجد نتائج بعد", api_saved:"✅ تم حفظ المفتاح", progress:"التقدم", words:"كلمة", docx_simple:"📄 نص بسيط", docx_styled:"✨ منسق بالكامل", docx_choose:"اختر نوع تصدير DOCX", dl_docx:"📝 تحميل .docx", smart_correct:"🧠 تصحيح ذكي", correct_title:"تصحيح ذكي بالذكاء الاصطناعي", correct_scope_current:"الملف الحالي فقط", correct_scope_all:"كل الملفات", correct_api_mistral:"Mistral (نفس المفتاح)", correct_api_claude:"Claude (مفتاح منفصل)", correct_claude_key:"مفتاح Claude API", correct_run:"✨ تصحيح الآن", correcting:"جارٍ التصحيح...", correct_done:"✅ اكتمل التصحيح", correct_err:"❌ خطأ" },
+  en:{ back:"Home Page", api_key:"Mistral API Key", get_key:"Get it free ↗", drop_strong:"Drag PDF here", drop_or:"or click to select", files_section:"Files", no_files:"No files yet", opt_images:"Extract Images", opt_autoscroll:"Auto Scroll", run_ocr:"Run OCR", waiting:"Waiting...", placeholder_text:"Add PDF files from the sidebar then click Run OCR", copy:"Copy", dl_md:"Download .md", dl_txt:"Download .txt", processing:"Processing", page:"Page", done:"✅ Done", error:"❌ Error", copied:"✅ Copied!", no_results:"No results yet", api_saved:"✅ Key saved", progress:"Progress", words:"words", docx_simple:"📄 Plain Text", docx_styled:"✨ Fully Formatted", docx_choose:"Choose DOCX Export", dl_docx:"📝 Download .docx", smart_correct:"🧠 Smart Correct", correct_title:"AI Smart Correction", correct_scope_current:"Current file only", correct_scope_all:"All files", correct_api_mistral:"Mistral (same key)", correct_api_claude:"Claude (separate key)", correct_claude_key:"Claude API Key", correct_run:"✨ Correct Now", correcting:"Correcting...", correct_done:"✅ Correction complete", correct_err:"❌ Error" },
+  fr:{ back:"Accueil", api_key:"Clé API Mistral", get_key:"Obtenir gratuitement ↗", drop_strong:"Glisser PDF ici", drop_or:"ou cliquer pour sélectionner", files_section:"Fichiers", no_files:"Aucun fichier", opt_images:"Extraire images", opt_autoscroll:"Défilement auto", run_ocr:"Lancer OCR", waiting:"En attente...", placeholder_text:"Ajoutez des PDF puis cliquez Lancer OCR", copy:"Copier", dl_md:"Télécharger .md", dl_txt:"Télécharger .txt", processing:"Traitement", page:"Page", done:"✅ Terminé", error:"❌ Erreur", copied:"✅ Copié!", no_results:"Pas encore de résultats", api_saved:"✅ Clé sauvegardée", progress:"Progression", words:"mots", docx_simple:"📄 Texte simple", docx_styled:"✨ Formaté", docx_choose:"Type DOCX", dl_docx:"📝 Télécharger .docx", smart_correct:"🧠 Correction IA", correct_title:"Correction intelligente IA", correct_scope_current:"Fichier actuel", correct_scope_all:"Tous les fichiers", correct_api_mistral:"Mistral (même clé)", correct_api_claude:"Claude (clé séparée)", correct_claude_key:"Clé API Claude", correct_run:"✨ Corriger", correcting:"Correction...", correct_done:"✅ Terminé", correct_err:"❌ Erreur" },
+  de:{ back:"Startseite", api_key:"Mistral API-Schlüssel", get_key:"Kostenlos erhalten ↗", drop_strong:"PDF hierher ziehen", drop_or:"oder klicken", files_section:"Dateien", no_files:"Keine Dateien", opt_images:"Bilder extrahieren", opt_autoscroll:"Auto-Scroll", run_ocr:"OCR starten", waiting:"Warten...", placeholder_text:"PDF-Dateien hinzufügen und OCR starten", copy:"Kopieren", dl_md:".md herunterladen", dl_txt:".txt herunterladen", processing:"Verarbeitung", page:"Seite", done:"✅ Fertig", error:"❌ Fehler", copied:"✅ Kopiert!", no_results:"Noch keine Ergebnisse", api_saved:"✅ Schlüssel gespeichert", progress:"Fortschritt", words:"Wörter", docx_simple:"📄 Einfach", docx_styled:"✨ Formatiert", docx_choose:"DOCX-Typ", dl_docx:"📝 Herunterladen .docx", smart_correct:"🧠 KI-Korrektur", correct_title:"KI-Textkorrektur", correct_scope_current:"Nur aktuelle Datei", correct_scope_all:"Alle Dateien", correct_api_mistral:"Mistral (gleicher Schlüssel)", correct_api_claude:"Claude (separater Schlüssel)", correct_claude_key:"Claude API-Schlüssel", correct_run:"✨ Korrigieren", correcting:"Korrigiere...", correct_done:"✅ Fertig", correct_err:"❌ Fehler" },
+  es:{ back:"Inicio", api_key:"Clave API Mistral", get_key:"Obtener gratis ↗", drop_strong:"Arrastra PDF aquí", drop_or:"o haz clic", files_section:"Archivos", no_files:"Sin archivos", opt_images:"Extraer imágenes", opt_autoscroll:"Desplazamiento auto", run_ocr:"Ejecutar OCR", waiting:"Esperando...", placeholder_text:"Añade PDFs y ejecuta OCR", copy:"Copiar", dl_md:"Descargar .md", dl_txt:"Descargar .txt", processing:"Procesando", page:"Página", done:"✅ Listo", error:"❌ Error", copied:"✅ Copiado!", no_results:"Sin resultados", api_saved:"✅ Clave guardada", progress:"Progreso", words:"palabras", docx_simple:"📄 Simple", docx_styled:"✨ Formateado", docx_choose:"Tipo DOCX", dl_docx:"📝 Descargar .docx", smart_correct:"🧠 Corrección IA", correct_title:"Corrección inteligente IA", correct_scope_current:"Solo archivo actual", correct_scope_all:"Todos los archivos", correct_api_mistral:"Mistral (misma clave)", correct_api_claude:"Claude (clave separada)", correct_claude_key:"Clave API Claude", correct_run:"✨ Corregir", correcting:"Corrigiendo...", correct_done:"✅ Completado", correct_err:"❌ Error" },
+  tr:{ back:"Ana Sayfa", api_key:"Mistral API Anahtarı", get_key:"Ücretsiz al ↗", drop_strong:"PDF'yi buraya sürükle", drop_or:"veya tıkla", files_section:"Dosyalar", no_files:"Henüz dosya yok", opt_images:"Görüntüleri çıkar", opt_autoscroll:"Otomatik kaydır", run_ocr:"OCR başlat", waiting:"Bekleniyor...", placeholder_text:"PDF ekle ve OCR başlat", copy:"Kopyala", dl_md:".md indir", dl_txt:".txt indir", processing:"İşleniyor", page:"Sayfa", done:"✅ Tamam", error:"❌ Hata", copied:"✅ Kopyalandı!", no_results:"Henüz sonuç yok", api_saved:"✅ Anahtar kaydedildi", progress:"İlerleme", words:"kelime", docx_simple:"📄 Düz", docx_styled:"✨ Biçimli", docx_choose:"DOCX türü", dl_docx:"📝 İndir .docx", smart_correct:"🧠 Akıllı Düzeltme", correct_title:"AI Akıllı Düzeltme", correct_scope_current:"Yalnızca mevcut", correct_scope_all:"Tüm dosyalar", correct_api_mistral:"Mistral (aynı anahtar)", correct_api_claude:"Claude (ayrı anahtar)", correct_claude_key:"Claude API Anahtarı", correct_run:"✨ Düzelt", correcting:"Düzeltiliyor...", correct_done:"✅ Tamamlandı", correct_err:"❌ Hata" },
+  id:{ back:"Beranda", api_key:"Kunci API Mistral", get_key:"Dapatkan gratis ↗", drop_strong:"Seret PDF ke sini", drop_or:"atau klik", files_section:"File", no_files:"Belum ada file", opt_images:"Ekstrak gambar", opt_autoscroll:"Gulir otomatis", run_ocr:"Jalankan OCR", waiting:"Menunggu...", placeholder_text:"Tambahkan PDF lalu jalankan OCR", copy:"Salin", dl_md:"Unduh .md", dl_txt:"Unduh .txt", processing:"Memproses", page:"Halaman", done:"✅ Selesai", error:"❌ Error", copied:"✅ Disalin!", no_results:"Belum ada hasil", api_saved:"✅ Kunci disimpan", progress:"Kemajuan", words:"kata", docx_simple:"📄 Biasa", docx_styled:"✨ Terformat", docx_choose:"Jenis DOCX", dl_docx:"📝 Unduh .docx", smart_correct:"🧠 Koreksi Cerdas", correct_title:"Koreksi Cerdas AI", correct_scope_current:"File saat ini", correct_scope_all:"Semua file", correct_api_mistral:"Mistral (kunci sama)", correct_api_claude:"Claude (kunci terpisah)", correct_claude_key:"Kunci API Claude", correct_run:"✨ Koreksi", correcting:"Mengoreksi...", correct_done:"✅ Selesai", correct_err:"❌ Error" },
+  ur:{ back:"ہوم پیج", api_key:"Mistral API کلید", get_key:"مفت حاصل کریں ↗", drop_strong:"PDF یہاں کھینچیں", drop_or:"یا کلک کریں", files_section:"فائلیں", no_files:"ابھی کوئی فائل نہیں", opt_images:"تصاویر نکالیں", opt_autoscroll:"خودکار اسکرول", run_ocr:"OCR چلائیں", waiting:"انتظار...", placeholder_text:"PDF شامل کریں پھر OCR چلائیں", copy:"کاپی", dl_md:".md ڈاؤن لوڈ", dl_txt:".txt ڈاؤن لوڈ", processing:"پروسیسنگ", page:"صفحہ", done:"✅ مکمل", error:"❌ خطا", copied:"✅ کاپی ہو گیا!", no_results:"ابھی کوئی نتیجہ نہیں", api_saved:"✅ کلید محفوظ", progress:"پیشرفت", words:"الفاظ", docx_simple:"📄 سادہ", docx_styled:"✨ فارمیٹ", docx_choose:"DOCX قسم", dl_docx:"📝 ڈاؤن لوڈ .docx", smart_correct:"🧠 ذہین تصحیح", correct_title:"AI ذہین تصحیح", correct_scope_current:"صرف موجودہ فائل", correct_scope_all:"تمام فائلیں", correct_api_mistral:"Mistral (وہی کلید)", correct_api_claude:"Claude (الگ کلید)", correct_claude_key:"Claude API کلید", correct_run:"✨ تصحیح کریں", correcting:"تصحیح جاری...", correct_done:"✅ مکمل", correct_err:"❌ خطا" },
 };
 
 // ══════════════════════════════════════════
@@ -457,10 +531,16 @@ const dropZone = document.getElementById("dropZone");
 const fileInput = document.getElementById("fileInput");
 
 dropZone.addEventListener("dragover", e=>{ e.preventDefault(); dropZone.classList.add("drag"); });
-dropZone.addEventListener("dragleave", ()=> dropZone.classList.remove("drag"));
+dropZone.addEventListener("dragleave", e=>{
+  if(!dropZone.contains(e.relatedTarget)) dropZone.classList.remove("drag");
+});
 dropZone.addEventListener("drop", e=>{
-  e.preventDefault(); dropZone.classList.remove("drag");
-  addFiles([...e.dataTransfer.files].filter(f=>f.type==="application/pdf"));
+  e.preventDefault();
+  e.stopPropagation();
+  dropZone.classList.remove("drag");
+  const dropped = [...(e.dataTransfer.files||[])].filter(f=>f.type==="application/pdf"||f.name.endsWith(".pdf"));
+  if(dropped.length) addFiles(dropped);
+  else showToast("يرجى إرفاق ملفات PDF فقط", "err");
 });
 fileInput.addEventListener("change", ()=>{
   addFiles([...fileInput.files]);
@@ -678,6 +758,320 @@ function showToast(msg, type="ok"){
   el.className = `toast ${type} show`;
   setTimeout(()=> el.classList.remove("show"), 2500);
 }
+
+
+
+// ══════════════════════════════════════════
+//   SMART CORRECTION
+// ══════════════════════════════════════════
+function showCorrectDialog(){
+  const text = document.getElementById("resultBox").value;
+  if(!text){ showToast(t("no_results"), "err"); return; }
+
+  // تحديث النصوص حسب اللغة
+  document.getElementById("correctDialogTitle").textContent = "🧠 " + t("correct_title");
+  document.getElementById("scopeCurrentText").textContent   = t("correct_scope_current");
+  document.getElementById("scopeAllText").textContent       = t("correct_scope_all");
+  document.getElementById("apiMistralText").textContent     = t("correct_api_mistral");
+  document.getElementById("apiClaudeText").textContent      = t("correct_api_claude");
+  document.getElementById("claudeKeyLabel").textContent     = t("correct_claude_key");
+  document.getElementById("correctRunBtn").textContent      = t("correct_run");
+
+  // تحميل مفتاح Claude المحفوظ
+  const savedClaude = localStorage.getItem("ocr_claude_key") || "";
+  document.getElementById("claudeKeyInput").value = savedClaude;
+
+  const dlg = document.getElementById("correctDialog");
+  dlg.style.display = "flex";
+  dlg.onclick = e => { if(e.target===dlg) dlg.style.display="none"; };
+}
+
+// حفظ مفتاح Claude تلقائياً
+document.getElementById("claudeKeyInput").addEventListener("input", function(){
+  localStorage.setItem("ocr_claude_key", this.value.trim());
+});
+
+async function runSmartCorrect(){
+  const scope     = document.querySelector('input[name="correctScope"]:checked').value;
+  const apiChoice = document.querySelector('input[name="correctApi"]:checked').value;
+  const mistralKey = document.getElementById("apiKey").value.trim();
+  const claudeKey  = document.getElementById("claudeKeyInput").value.trim();
+
+  if(apiChoice === "claude" && !claudeKey){
+    showToast("أدخل مفتاح Claude API!", "err"); return;
+  }
+  if(apiChoice === "mistral" && !mistralKey){
+    showToast("أدخل مفتاح Mistral API!", "err"); return;
+  }
+
+  // تحديد الملفات
+  const targets = {};
+  if(scope === "current" && activeTab){
+    targets[activeTab] = results[activeTab] || "";
+  } else {
+    Object.assign(targets, results);
+  }
+
+  if(Object.keys(targets).length === 0){
+    showToast(t("no_results"), "err"); return;
+  }
+
+  const runBtn = document.getElementById("correctRunBtn");
+  const progWrap = document.getElementById("correctProgWrap");
+  const progFill = document.getElementById("correctProgFill");
+  const progLabel = document.getElementById("correctProgLabel");
+
+  runBtn.disabled = true;
+  runBtn.textContent = t("correcting");
+  progWrap.style.display = "block";
+
+  const entries  = Object.entries(targets);
+  const total    = entries.length;
+  const corrected = {};
+
+  const prompt_template = (text) =>
+    "أنت مصحح نصوص عربي محترف متخصص في تصحيح أخطاء OCR.
+" +
+    "مهمتك: صحّح النص التالي المستخرج من PDF بدقة عالية.
+
+" +
+    "قواعد مهمة جداً:
+" +
+    "١. صحّح الكلمات الخاطئة بفهم السياق.
+" +
+    "٢. أكمل الكلمات المقطوعة بسبب OCR.
+" +
+    "٣. صحّح علامات الترقيم.
+" +
+    "٤. حافظ على التنسيق الأصلي.
+" +
+    "٥. أعد النص المصحح فقط بدون أي مقدمة.
+
+" +
+    "النص:
+" + text;
+
+  for(let i=0; i<entries.length; i++){
+    const [name, text] = entries[i];
+    progLabel.textContent = `${t("correcting")} ${name} (${i+1}/${total})`;
+    progFill.style.width = ((i/total)*100) + "%";
+
+    try {
+      let correctedText = "";
+
+      if(apiChoice === "mistral"){
+        const res = await fetch("https://api.mistral.ai/v1/chat/completions", {
+          method: "POST",
+          headers: {"Content-Type":"application/json", "Authorization":`Bearer ${mistralKey}`},
+          body: JSON.stringify({
+            model: "mistral-large-latest",
+            messages: [{ role:"user", content: prompt_template(text) }],
+            max_tokens: 8192
+          })
+        });
+        const data = await res.json();
+        if(!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
+        correctedText = data.choices[0].message.content;
+
+      } else {
+        const res = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type":"application/json",
+            "x-api-key": claudeKey,
+            "anthropic-version":"2023-06-01"
+          },
+          body: JSON.stringify({
+            model: "claude-sonnet-4-20250514",
+            max_tokens: 8192,
+            messages: [{ role:"user", content: prompt_template(text) }]
+          })
+        });
+        const data = await res.json();
+        if(!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
+        correctedText = data.content[0].text;
+      }
+
+      corrected[name] = correctedText;
+      results[name]   = correctedText;
+
+    } catch(err) {
+      corrected[name] = `[${t("correct_err")}: ${err.message}]
+
+${text}`;
+      results[name]   = corrected[name];
+    }
+
+    progFill.style.width = (((i+1)/total)*100) + "%";
+  }
+
+  // عرض النتيجة
+  if(activeTab && corrected[activeTab]){
+    const box = document.getElementById("resultBox");
+    box.value = corrected[activeTab];
+    updateStats(corrected[activeTab]);
+  }
+
+  progLabel.textContent = t("correct_done");
+  runBtn.disabled = false;
+  runBtn.textContent = t("correct_run");
+  showToast(t("correct_done"), "ok");
+
+  setTimeout(()=>{
+    document.getElementById("correctDialog").style.display = "none";
+    document.getElementById("correctProgWrap").style.display = "none";
+    progFill.style.width = "0%";
+  }, 1500);
+}
+
+// ══════════════════════════════════════════
+//   DOCX EXPORT (client-side via docx.js)
+// ══════════════════════════════════════════
+function showDocxDialog(){
+  const text = document.getElementById("resultBox").value;
+  if(!text){ showToast(t("no_results"), "err"); return; }
+  // update dialog labels
+  document.getElementById("docxDialogTitle").textContent = t("docx_choose");
+  document.getElementById("docxSimpleBtn").textContent   = t("docx_simple");
+  document.getElementById("docxStyledBtn").textContent   = t("docx_styled");
+  const dlg = document.getElementById("docxDialog");
+  dlg.style.display = "flex";
+  dlg.onclick = e => { if(e.target===dlg) dlg.style.display="none"; };
+}
+
+async function downloadDocx(styled){
+  document.getElementById("docxDialog").style.display = "none";
+  const text = document.getElementById("resultBox").value;
+  if(!text){ showToast(t("no_results"), "err"); return; }
+
+  showToast("⏳ جارٍ إنشاء الملف...", "ok");
+
+  // load docx.js from CDN
+  if(!window.docx){
+    await new Promise((res,rej)=>{
+      const s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/docx/9.5.0/docx.umd.min.js";
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+
+  const { Document, Packer, Paragraph, TextRun, HeadingLevel,
+          AlignmentType, PageOrientation, BorderStyle } = window.docx;
+
+  const children = [];
+  const isRTL = ["ar","ur"].includes(lang);
+
+  const makeP = (text, opts={}) => new Paragraph({
+    bidirectional: isRTL,
+    alignment: isRTL ? AlignmentType.RIGHT : AlignmentType.LEFT,
+    ...opts,
+    children: [new TextRun({
+      text,
+      font: isRTL ? "Arial" : "Calibri",
+      size: opts.size || 24,
+      bold: opts.bold || false,
+      color: opts.color || "000000",
+      ...( isRTL ? {rightToLeft: true} : {} )
+    })]
+  });
+
+  const lines = text.split("\n");
+
+  if(styled){
+    // ── عنوان المستند ──
+    children.push(new Paragraph({
+      heading: HeadingLevel.HEADING_1,
+      bidirectional: isRTL,
+      alignment: isRTL ? AlignmentType.RIGHT : AlignmentType.LEFT,
+      children:[new TextRun({
+        text: activeTab || "OCR Result",
+        font:"Arial", size:36, bold:true, color:"00D084",
+        ...(isRTL?{rightToLeft:true}:{})
+      })]
+    }));
+    children.push(makeP(new Date().toLocaleString(), {size:18, color:"7d8590"}));
+    children.push(makeP(""));
+
+    for(const line of lines){
+      const s = line.trim();
+      if(s.startsWith("## ")){
+        children.push(new Paragraph({
+          heading: HeadingLevel.HEADING_2, bidirectional:isRTL,
+          alignment: isRTL?AlignmentType.RIGHT:AlignmentType.LEFT,
+          children:[new TextRun({text:s.slice(3),font:"Arial",size:28,bold:true,color:"388BFD",...(isRTL?{rightToLeft:true}:{})})]
+        }));
+      } else if(s.startsWith("# ")){
+        children.push(new Paragraph({
+          heading: HeadingLevel.HEADING_2, bidirectional:isRTL,
+          alignment: isRTL?AlignmentType.RIGHT:AlignmentType.LEFT,
+          children:[new TextRun({text:s.slice(2),font:"Arial",size:30,bold:true,color:"388BFD",...(isRTL?{rightToLeft:true}:{})})]
+        }));
+      } else if(/^─+/.test(s)){
+        children.push(new Paragraph({
+          bidirectional:isRTL,
+          border:{bottom:{style:BorderStyle.SINGLE,size:6,color:"21262D",space:1}},
+          children:[]
+        }));
+      } else if(s===""){
+        children.push(makeP(""));
+      } else {
+        // bold support **text**
+        const parts = s.split(/(\*\*[^*]+\*\*)/g);
+        const runs = parts.map(p=>{
+          const isBold = p.startsWith("**") && p.endsWith("**");
+          return new TextRun({
+            text: isBold ? p.slice(2,-2) : p,
+            bold: isBold, font:"Arial", size:24,
+            ...(isRTL?{rightToLeft:true}:{})
+          });
+        });
+        children.push(new Paragraph({
+          bidirectional:isRTL,
+          alignment:isRTL?AlignmentType.RIGHT:AlignmentType.LEFT,
+          children:runs
+        }));
+      }
+    }
+  } else {
+    // ── وضع بسيط ──
+    children.push(new Paragraph({
+      heading:HeadingLevel.HEADING_1, bidirectional:isRTL,
+      alignment:isRTL?AlignmentType.RIGHT:AlignmentType.LEFT,
+      children:[new TextRun({text:activeTab||"OCR Result",font:"Arial",size:32,bold:true,...(isRTL?{rightToLeft:true}:{})})]
+    }));
+    const clean = text
+      .replace(/^#{1,6}\s+/gm,"")
+      .replace(/\*\*([^*]+)\*\*/g,"$1")
+      .replace(/^─+.*$/gm,"")
+      .replace(/^\|.*$/gm,"");
+    for(const line of clean.split("\n")){
+      children.push(makeP(line));
+    }
+  }
+
+  const doc = new Document({
+    sections:[{
+      properties:{
+        page:{
+          size:{width:11906, height:16838},
+          margin:{top:1440,bottom:1440,left:1800,right:1800}
+        }
+      },
+      children
+    }]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${(activeTab||"result").replace(".pdf","")}.docx`;
+  a.click();
+  showToast("✅ تم إنشاء ملف DOCX!", "ok");
+}
+// منع المتصفح من فتح الملف عند الإفلات خارج المنطقة
+document.addEventListener("dragover",  e=>e.preventDefault());
+document.addEventListener("drop",      e=>e.preventDefault());
 
 // ══════════════════════════════════════════
 //   INIT
